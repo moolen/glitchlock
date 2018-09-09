@@ -11,6 +11,10 @@ Example screenlock using `-censor`.
 
 For convenience, you can write the glitchy screenshot to a file `-out <filename>` and reuse it on the next run using `-in <filename>`. Further, you can specify a `-seed <int>` to reproduce glitch patterns.
 
+## Installation
+
+Grab a binary from the [releases page](https://github.com/moolen/glitchlock/releases) or `go get github.com/moolen/glitchlock` it.
+
 ## Subpackages
 
 * [PAM](https://github.com/moolen/glitchlock/blob/master/pam): check user/password combination using PAM.
