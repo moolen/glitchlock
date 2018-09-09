@@ -7,7 +7,7 @@ For additional "security" :trollface: glitchlock uses Tesseract's OCR engine to 
 
 Example screenlock using `-censor`.
 
-![glitchlock](https://i.imgur.com/lMBlvMo.png)
+![glitchlock](https://i.imgur.com/kPwL42n.png)
 
 For convenience, you can write the glitchy screenshot to a file `-out <filename>` and reuse it on the next run using `-in <filename>`. Further, you can specify a `-seed <int>` to reproduce glitch patterns.
 
