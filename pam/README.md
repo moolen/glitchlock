@@ -2,7 +2,7 @@
 
 Check a user/password combination using PAM.
 
-You need to install `<security/pam_appl.h>` and `<security/pam_misc.h>`.
+You need to install the development PAM headers, specificially `<security/pam_appl.h>` and `<security/pam_misc.h>`.
 
 ## Example
 
@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	if pam.AuthenticateCurrentUser("1234") {
+    if pam.AuthenticateCurrentUser("1234") {
         fmt.Println("password matches")
     }else{
         fmt.Println("wrong password")

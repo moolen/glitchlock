@@ -11,27 +11,36 @@ See [glitchlock](https://github.com/moolen/glitchlock).
 package main
 
 import (
-	"image"
-	"image/png"
-	"os"
+        "image/png"
+        "os"
 
-	"github.com/kbinani/screenshot"
-	"github.com/moolen/glitchlock/glitch"
+        "github.com/kbinani/screenshot"
+        "github.com/moolen/glitchlock/glitch"
 )
-func main(){
-    bounds := screenshot.GetDisplayBounds(0)
-    img, _ := screenshot.CaptureRect(bounds)
 
-    // first censor, then distort
-	censored, err = glitch.Censor(img)
-    glitch, err = glitch.Distort(censored, &glitch.DistortConfig{
-		Pixelate: 3,
-		Pieces:   10,
-		Seed:     1312,
-    })
-    file, _ := os.Open("myfile")
-    defer file.Close()
-    png.Encode(file, glitch)
+func main() {
+        bounds := screenshot.GetDisplayBounds(0)
+        img, _ := screenshot.CaptureRect(bounds)
+
+        // first censor, then distort
+        censored, err := glitch.Censor(img)
+        if err != nil {
+                panic(err)
+        }
+        glitch, err := glitch.Distort(censored, &glitch.DistortConfig{
+                Pixelate: 3,
+                Pieces:   10,
+                Seed:     1312,
+        })
+        if err != nil {
+                panic(err)
+        }
+        file, err := os.Create("glitch.png")
+        if err != nil {
+                panic(err)
+        }
+        defer file.Close()
+        png.Encode(file, glitch)
 }
 
 ```

@@ -13,8 +13,8 @@ For convenience, you can write the glitchy screenshot to a file `-out <filename>
 
 ## Subpackages
 
-[PAM](https://github.com/moolen/golock/blob/master/pam): check user/password combination using PAM.
-[glitch](https://github.com/moolen/golock/blob/master/glitch): distort images.
+* [PAM](https://github.com/moolen/glitchlock/blob/master/pam): check user/password combination using PAM.
+* [glitch](https://github.com/moolen/glitchlock/blob/master/glitch): distort images.
 
 ## Usage
 
