@@ -38,4 +38,6 @@ Usage of glitchlock:
         picelate width
   -seed int
         random seed (default 1312)
+  -password string
+        specify a custom unlock password. This ignores the user's password
 ```

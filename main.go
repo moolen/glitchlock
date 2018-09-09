@@ -26,6 +26,7 @@ func main() {
 	piecesFlag := flag.Int("pieces", 10, "divices the screen into n pieces. Must be >0")
 	pixelateFlag := flag.Int("pixelate", 0, "picelate width")
 	debugFlag := flag.Bool("debug", false, "debug mode, hit ESC to exit")
+	passwordFlag := flag.String("password", "", "specify a custom unlock password. This ignores the user's password")
 	outFlag := flag.String("out", "", "write glitch image to file as png")
 	inFlag := flag.String("in", "", "read image from file")
 	flag.Parse()
@@ -46,7 +47,7 @@ func main() {
 		}
 		if img, ok := img.(*image.RGBA); ok {
 			// img is now an *image.RGBA
-			err = loop(img, *debugFlag)
+			err = loop(img, *debugFlag, *passwordFlag)
 			if err != nil {
 				log.Panic(err)
 			}
@@ -84,13 +85,13 @@ func main() {
 		}
 		png.Encode(file, screen)
 	}
-	err = loop(screen, *debugFlag)
+	err = loop(screen, *debugFlag, *passwordFlag)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func loop(screen *image.RGBA, permitEscape bool) error {
+func loop(screen *image.RGBA, permitEscape bool, customPassword string) error {
 	// initialize xgb
 	X, err := xgb.NewConn()
 	if err != nil {
@@ -156,6 +157,12 @@ func loop(screen *image.RGBA, permitEscape bool) error {
 			log.Debugf("current password: %s", password)
 			if keybind.KeyMatch(Xu, "Return", e.State, e.Detail) {
 				log.Debugf("...checking password")
+				if len(customPassword) > 0 {
+					if password == customPassword {
+						return nil
+					}
+					continue
+				}
 				if pam.AuthenticateCurrentUser(password) {
 					return nil
 				}
