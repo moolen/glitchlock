@@ -1,12 +1,15 @@
 # glitchlock
 The glitchy X locker. Inspired by [xero/glitchlock](https://github.com/xero/glitchlock).
 
-For additional security (:lol:) glitchlock uses Tesseract's OCR engine to find characters on the screen and crosses them out.
+For additional "security" :trollface: glitchlock uses Tesseract's OCR engine to find characters on the screen and crosses them out. That's optional.
 
 ## Example
 
 Example screenlock using `-censor`.
+
 ![glitchlock](https://i.imgur.com/J3wi4Um.png)
+
+For convenience, you can write the glitchy screenshot to a file `-out <filename>` and reuse it on the next run using `-in <filename>`. Further, you can specify a `-seed <int>` to reproduce glitch patterns.
 
 ## Subpackages
 
