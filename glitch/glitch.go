@@ -104,9 +104,9 @@ func Censor(in *image.RGBA) (*image.RGBA, error) {
 	var pngBuf bytes.Buffer
 	png.Encode(&pngBuf, in)
 	client.SetImageFromBytes(pngBuf.Bytes())
-	coords, _ := client.GetResults()
-	for _, coord := range coords {
-		in = drawRect(in, coord.X1, coord.Y1, coord.X2, coord.Y2)
+	bboxes, _ := client.GetBoundingBoxes(gosseract.RIL_WORD)
+	for _, box := range bboxes {
+		in = drawRect(in, box.Box.Min.X, box.Box.Min.Y, box.Box.Max.X, box.Box.Max.Y)
 	}
 	return in, nil
 }
