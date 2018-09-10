@@ -2,7 +2,6 @@
 #include <security/pam_misc.h>
 #include <stdio.h>
 #include <pwd.h>
-#include <err.h>
 
 const char* test_password = NULL;
 
@@ -20,9 +19,7 @@ static int conv_callback(int num_msg, const struct pam_message **msg, struct pam
     if (num_msg == 0)
         return 1;
 
-    /* PAM expects an array of responses, one for each message */
     if ((*resp = calloc(num_msg, sizeof(struct pam_response))) == NULL) {
-        perror("calloc");
         return 1;
     }
 
@@ -31,10 +28,8 @@ static int conv_callback(int num_msg, const struct pam_message **msg, struct pam
             msg[c]->msg_style != PAM_PROMPT_ECHO_ON)
             continue;
 
-        /* return code is currently not used but should be set to zero */
         resp[c]->resp_retcode = 0;
         if ((resp[c]->resp = strdup(test_password)) == NULL) {
-            perror("strdup");
             return 1;
         }
     }
