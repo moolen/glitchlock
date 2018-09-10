@@ -20,6 +20,10 @@ Grab a binary from the [releases page](https://github.com/moolen/glitchlock/rele
 * [PAM](https://github.com/moolen/glitchlock/blob/master/pam): check user/password combination using PAM.
 * [glitch](https://github.com/moolen/glitchlock/blob/master/glitch): distort images.
 
+## Known issues
+
+* multi-head setup is WIP and might not work
+
 ## Usage
 
 ```
