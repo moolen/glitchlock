@@ -9,8 +9,6 @@ Example screenlock using `-censor`.
 
 ![glitchlock](https://i.imgur.com/kPwL42n.png)
 
-For convenience, you can write the glitchy screenshot to a file `-out <filename>` and reuse it on the next run using `-in <filename>`. Further, you can specify a `-seed <int>` to reproduce glitch patterns.
-
 ## Installation
 
 Grab a binary from the [releases page](https://github.com/moolen/glitchlock/releases) or `go get github.com/moolen/glitchlock` it. You need the tesseract development libraries for compiling this (`tesseract / archlinux` / `libtesseract-dev / ubuntu`) and for runtime, `tesseract-data-eng / archlinux` or `tesseract-ocr-eng / ubuntu`.
@@ -32,10 +30,6 @@ Usage of glitchlock:
         censors text on the image
   -debug
         debug mode, hit ESC to exit
-  -in string
-        read image from file
-  -out string
-        write glitch image to file as png
   -pieces int
         divices the screen into n pieces. Must be >0 (default 10)
   -pixelate int

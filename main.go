@@ -4,16 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	"image/png"
-	"os"
 	"time"
 
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
-	"github.com/BurntSushi/xgbutil/ewmh"
+	"github.com/BurntSushi/xgbutil/icccm"
 	"github.com/BurntSushi/xgbutil/keybind"
+	"github.com/BurntSushi/xgbutil/mousebind"
+	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xgraphics"
+	"github.com/BurntSushi/xgbutil/xwindow"
 	"github.com/kbinani/screenshot"
 	"github.com/moolen/glitchlock/glitch"
 	"github.com/moolen/glitchlock/pam"
@@ -27,71 +28,74 @@ func main() {
 	pixelateFlag := flag.Int("pixelate", 0, "picelate width")
 	debugFlag := flag.Bool("debug", false, "debug mode, hit ESC to exit")
 	passwordFlag := flag.String("password", "", "specify a custom unlock password. This ignores the user's password")
-	outFlag := flag.String("out", "", "write glitch image to file as png")
-	inFlag := flag.String("in", "", "read image from file")
 	flag.Parse()
 
 	if *debugFlag {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	// use existing image
-	if len(*inFlag) > 0 {
-		file, err := os.Open(*inFlag)
-		if err != nil {
-			log.Panic(err)
-		}
-		img, _, err := image.Decode(file)
-		if err != nil {
-			log.Panic(err)
-		}
-		if img, ok := img.(*image.RGBA); ok {
-			// img is now an *image.RGBA
-			err = loop(img, *debugFlag, *passwordFlag)
-			if err != nil {
-				log.Panic(err)
-			}
-			return
-		}
-		log.Panic("input not an RGBA image")
-	}
-
 	if *piecesFlag <= 0 {
 		log.Errorf("pieces must be > 0")
 		return
 	}
-	screen, err := takeScreenshot()
+	screens, err := takeScreenshot()
 	if err != nil {
 		log.Panic(err)
 	}
-	if *censorFlag {
-		screen, err = glitch.Censor(screen)
-		if err != nil {
-			log.Panic(err)
-		}
-	}
-	screen, err = glitch.Distort(screen, &glitch.DistortConfig{
-		Pixelate: *pixelateFlag,
-		Pieces:   *piecesFlag,
-		Seed:     *seedFlag,
-	})
+	screens, err = pipeline(screens, *censorFlag, *pixelateFlag, *piecesFlag, *seedFlag)
 	if err != nil {
 		log.Panic(err)
 	}
-	if len(*outFlag) > 0 {
-		file, err := os.Create(*outFlag)
-		if err != nil {
-			log.Panic(err)
-		}
-		png.Encode(file, screen)
-	}
-	err = loop(screen, *debugFlag, *passwordFlag)
+
+	err = loop(screens, *debugFlag, *passwordFlag)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func loop(screen *image.RGBA, permitEscape bool, customPassword string) error {
+type screen struct {
+	image *image.RGBA
+	rect  image.Rectangle
+}
+
+func (s screen) X() int {
+	return s.rect.Min.X
+}
+
+func (s screen) Y() int {
+	return s.rect.Min.Y
+}
+
+func (s screen) Width() int {
+	return s.rect.Max.X - s.rect.Min.X
+}
+
+func (s screen) Height() int {
+	return s.rect.Max.Y - s.rect.Min.Y
+}
+
+func pipeline(screens []*screen, censor bool, pixelate int, pieces int, seed int64) ([]*screen, error) {
+	var err error
+	for i, screen := range screens {
+		if censor {
+			screens[i].image, err = glitch.Censor(screen.image)
+			if err != nil {
+				return nil, err
+			}
+		}
+		screens[i].image, err = glitch.Distort(screen.image, &glitch.DistortConfig{
+			Pixelate: pixelate,
+			Pieces:   pieces,
+			Seed:     seed,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return screens, nil
+}
+
+func loop(screens []*screen, permitEscape bool, customPassword string) error {
 	// initialize xgb
 	X, err := xgb.NewConn()
 	if err != nil {
@@ -123,14 +127,45 @@ func loop(screen *image.RGBA, permitEscape bool, customPassword string) error {
 	if repp.Status != xproto.GrabStatusSuccess {
 		return fmt.Errorf("could not grab pointer")
 	}
-	// create window, set fullscreen, show image
-	ximg := xgraphics.NewConvert(Xu, screen)
-	win := ximg.XShow()
-	err = ewmh.WmStateReq(Xu, win.Id, ewmh.StateToggle,
-		"_NET_WM_STATE_FULLSCREEN")
-	if err != nil {
-		return err
+
+	for _, screen := range screens {
+		ximg := xgraphics.NewConvert(Xu, screen.image)
+		win, err := xwindow.Generate(ximg.X)
+		if err != nil {
+			return err
+		}
+		log.Debugf("creating window using screen rect %#v", screen.rect)
+		win.Create(ximg.X.RootWin(), screen.X(), screen.Y(), screen.Width(), screen.Height(), 0)
+		win.WMGracefulClose(func(w *xwindow.Window) {
+			xevent.Detach(w.X, w.Id)
+			keybind.Detach(w.X, w.Id)
+			mousebind.Detach(w.X, w.Id)
+			w.Destroy()
+		})
+		err = icccm.WmStateSet(ximg.X, win.Id, &icccm.WmState{
+			State: icccm.StateNormal,
+		})
+		if err != nil { // not a fatal error
+			return err
+		}
+		err = icccm.WmNormalHintsSet(ximg.X, win.Id, &icccm.NormalHints{
+			Flags:     icccm.SizeHintPMinSize | icccm.SizeHintPMaxSize,
+			MinWidth:  uint(screen.Width()),
+			MinHeight: uint(screen.Height()),
+			MaxWidth:  uint(screen.Width()),
+			MaxHeight: uint(screen.Height()),
+		})
+		if err != nil {
+			return err
+		}
+
+		// Paint our image before mapping.
+		ximg.XSurfaceSet(win.Id)
+		ximg.XDraw()
+		ximg.XPaint(win.Id)
+		win.Map()
 	}
+
 	// main loop
 	lastInput := time.Now()
 	var password string
@@ -175,11 +210,19 @@ func loop(screen *image.RGBA, permitEscape bool, customPassword string) error {
 	}
 }
 
-func takeScreenshot() (*image.RGBA, error) {
-	bounds := screenshot.GetDisplayBounds(0)
-	img, err := screenshot.CaptureRect(bounds)
-	if err != nil {
-		return nil, err
+func takeScreenshot() (out []*screen, err error) {
+	var img *image.RGBA
+	n := screenshot.NumActiveDisplays()
+	for i := 0; i < n; i++ {
+		bounds := screenshot.GetDisplayBounds(i)
+		img, err = screenshot.CaptureRect(bounds)
+		if err != nil {
+			return
+		}
+		out = append(out, &screen{
+			image: img,
+			rect:  bounds,
+		})
 	}
-	return img, nil
+	return
 }
