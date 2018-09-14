@@ -213,6 +213,7 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 func takeScreenshot() (out []*screen, err error) {
 	var img *image.RGBA
 	n := screenshot.NumActiveDisplays()
+	log.Debugf("found %d screens", n)
 	for i := 0; i < n; i++ {
 		bounds := screenshot.GetDisplayBounds(i)
 		img, err = screenshot.CaptureRect(bounds)
