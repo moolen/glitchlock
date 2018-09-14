@@ -21,6 +21,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var version = "dev"
+
 func main() {
 	censorFlag := flag.Bool("censor", false, "censors text on the image")
 	seedFlag := flag.Int64("seed", 1312, "random seed")
@@ -28,10 +30,16 @@ func main() {
 	pixelateFlag := flag.Int("pixelate", 0, "picelate width")
 	debugFlag := flag.Bool("debug", false, "debug mode, hit ESC to exit")
 	passwordFlag := flag.String("password", "", "specify a custom unlock password. This ignores the user's password")
+	versionFlag := flag.Bool("version", false, "print version")
 	flag.Parse()
 
 	if *debugFlag {
 		log.SetLevel(log.DebugLevel)
+	}
+
+	if *versionFlag {
+		fmt.Printf("glitchlog %s\n", version)
+		return
 	}
 
 	if *piecesFlag <= 0 {
@@ -145,7 +153,7 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 		err = icccm.WmStateSet(ximg.X, win.Id, &icccm.WmState{
 			State: icccm.StateNormal,
 		})
-		if err != nil { // not a fatal error
+		if err != nil {
 			return err
 		}
 		err = icccm.WmNormalHintsSet(ximg.X, win.Id, &icccm.NormalHints{
@@ -216,6 +224,7 @@ func takeScreenshot() (out []*screen, err error) {
 	log.Debugf("found %d screens", n)
 	for i := 0; i < n; i++ {
 		bounds := screenshot.GetDisplayBounds(i)
+		log.Debugf("screen %d has bounds %#v", i, bounds)
 		img, err = screenshot.CaptureRect(bounds)
 		if err != nil {
 			return
