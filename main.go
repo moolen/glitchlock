@@ -9,6 +9,7 @@ import (
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/ewmh"
 	"github.com/BurntSushi/xgbutil/icccm"
 	"github.com/BurntSushi/xgbutil/keybind"
 	"github.com/BurntSushi/xgbutil/mousebind"
@@ -167,11 +168,20 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 			return err
 		}
 
+		err = ewmh.WmStateReq(Xu, win.Id, ewmh.StateToggle,
+			"_NET_WM_STATE_FULLSCREEN")
+		if err != nil {
+			return err
+		}
+
 		// Paint our image before mapping.
 		ximg.XSurfaceSet(win.Id)
 		ximg.XDraw()
 		ximg.XPaint(win.Id)
 		win.Map()
+
+		// some WM override this position after mapping
+		win.Move(screen.X(), screen.Y())
 	}
 
 	// main loop
