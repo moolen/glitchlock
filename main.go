@@ -207,6 +207,9 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 			if len(key) == 1 {
 				password += key
 			}
+			if keybind.KeyMatch(Xu, "BackSpace", e.State, e.Detail) && len(password) > 0 {
+				password = password[:len(password)-1]
+			}
 			log.Debugf("current password: %s", password)
 			if keybind.KeyMatch(Xu, "Return", e.State, e.Detail) {
 				log.Debugf("...checking password")
