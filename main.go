@@ -6,17 +6,19 @@ import (
 	"image"
 	"time"
 
+	"github.com/moolen/glitchlock/snap"
+
+	"github.com/BurntSushi/xgbutil/ewmh"
+	"github.com/BurntSushi/xgbutil/icccm"
+
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
-	"github.com/BurntSushi/xgbutil/ewmh"
-	"github.com/BurntSushi/xgbutil/icccm"
 	"github.com/BurntSushi/xgbutil/keybind"
 	"github.com/BurntSushi/xgbutil/mousebind"
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xgraphics"
 	"github.com/BurntSushi/xgbutil/xwindow"
-	"github.com/kbinani/screenshot"
 	"github.com/moolen/glitchlock/glitch"
 	"github.com/moolen/glitchlock/pam"
 	log "github.com/sirupsen/logrus"
@@ -232,20 +234,20 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 }
 
 func takeScreenshot() (out []*screen, err error) {
-	var img *image.RGBA
-	n := screenshot.NumActiveDisplays()
-	log.Debugf("found %d screens", n)
-	for i := 0; i < n; i++ {
-		bounds := screenshot.GetDisplayBounds(i)
-		log.Debugf("screen %d has bounds %#v", i, bounds)
-		img, err = screenshot.CaptureRect(bounds)
+	screens, err := snap.GetScreens()
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range screens {
+		i, err := s.Capture()
 		if err != nil {
-			return
+			return nil, err
 		}
 		out = append(out, &screen{
-			image: img,
-			rect:  bounds,
+			image: i,
+			rect:  image.Rect(s.X, s.Y, s.X+s.Width, s.Y+s.Height),
 		})
+
 	}
 	return
 }
