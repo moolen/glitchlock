@@ -26,3 +26,7 @@ jobs:
       - run: sudo apt-get install -yqq libpam0g-dev libtesseract-dev libleptonica-dev
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+      - run: make
+      - store_artifacts:
+          path: /go/src/github.com/moolen/glitchlock/glitchlock
+          destination: glitchlock-linux-x86_64
