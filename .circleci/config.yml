@@ -22,6 +22,7 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
-      - run: apt-get update; apt-get install libpam0g-dev libtesseract-dev
+      - run: sudo apt-get update
+      - run: sudo apt-get install -yqq libpam0g-dev libtesseract-dev
       - run: go get -v -t -d ./...
       - run: go test -v ./...
