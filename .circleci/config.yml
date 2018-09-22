@@ -45,7 +45,10 @@ jobs:
             ghr -t ${GITHUB_TOKEN} -u moolen -r glitchlock -c ${CIRCLE_SHA1} -delete ${VERSION} ./artifacts/
 workflows:
   version: 2
-  main:
+  run_test:
+    jobs:
+      - build
+  release:
     jobs:
       - build:
           filters:
@@ -54,6 +57,7 @@ workflows:
       - publish-github-release:
           requires:
             - build
+            - hold
           filters:
             branches:
               ignore: /.*/
