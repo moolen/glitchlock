@@ -34,6 +34,7 @@ func main() {
 	debugFlag := flag.Bool("debug", false, "debug mode, hit ESC to exit")
 	passwordFlag := flag.String("password", "", "specify a custom unlock password. This ignores the user's password")
 	versionFlag := flag.Bool("version", false, "print version")
+	noGrabFlag := flag.Bool("no-grab", false, "do not grab keyboard and pointer")
 	flag.Parse()
 
 	if *debugFlag {
@@ -58,7 +59,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = loop(screens, *debugFlag, *passwordFlag)
+	err = loop(screens, *noGrabFlag, *debugFlag, *passwordFlag)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -106,7 +107,7 @@ func pipeline(screens []*screen, censor bool, pixelate int, pieces int, seed int
 	return screens, nil
 }
 
-func loop(screens []*screen, permitEscape bool, customPassword string) error {
+func loop(screens []*screen, noGrab bool, permitEscape bool, customPassword string) error {
 	// initialize xgb
 	X, err := xgb.NewConn()
 	if err != nil {
@@ -119,24 +120,27 @@ func loop(screens []*screen, permitEscape bool, customPassword string) error {
 	keybind.Initialize(Xu)
 	xscreen := xproto.Setup(X).DefaultScreen(X)
 	// grab keyboard and pointer
-	grabc := xproto.GrabKeyboard(X, false, xscreen.Root, xproto.TimeCurrentTime,
-		xproto.GrabModeAsync, xproto.GrabModeAsync,
-	)
-	repk, err := grabc.Reply()
-	if err != nil {
-		return fmt.Errorf("error grabbing Keyboard")
-	}
-	if repk.Status != xproto.GrabStatusSuccess {
-		return fmt.Errorf("could not grab keyboard")
-	}
-	grabp := xproto.GrabPointer(X, false, xscreen.Root, (xproto.EventMaskKeyPress|xproto.EventMaskKeyRelease)&0,
-		xproto.GrabModeAsync, xproto.GrabModeAsync, xproto.WindowNone, xproto.CursorNone, xproto.TimeCurrentTime)
-	repp, err := grabp.Reply()
-	if err != nil {
-		return fmt.Errorf("error grabbing pointer")
-	}
-	if repp.Status != xproto.GrabStatusSuccess {
-		return fmt.Errorf("could not grab pointer")
+	if !noGrab {
+
+		grabc := xproto.GrabKeyboard(X, false, xscreen.Root, xproto.TimeCurrentTime,
+			xproto.GrabModeAsync, xproto.GrabModeAsync,
+		)
+		repk, err := grabc.Reply()
+		if err != nil {
+			return fmt.Errorf("error grabbing Keyboard")
+		}
+		if repk.Status != xproto.GrabStatusSuccess {
+			return fmt.Errorf("could not grab keyboard")
+		}
+		grabp := xproto.GrabPointer(X, false, xscreen.Root, (xproto.EventMaskKeyPress|xproto.EventMaskKeyRelease)&0,
+			xproto.GrabModeAsync, xproto.GrabModeAsync, xproto.WindowNone, xproto.CursorNone, xproto.TimeCurrentTime)
+		repp, err := grabp.Reply()
+		if err != nil {
+			return fmt.Errorf("error grabbing pointer")
+		}
+		if repp.Status != xproto.GrabStatusSuccess {
+			return fmt.Errorf("could not grab pointer")
+		}
 	}
 
 	for _, screen := range screens {
