@@ -173,13 +173,6 @@ func loop(screens []*screen, noGrab bool, permitEscape bool, customPassword stri
 		if err != nil {
 			return err
 		}
-
-		err = ewmh.WmStateReq(Xu, win.Id, ewmh.StateToggle,
-			"_NET_WM_STATE_FULLSCREEN")
-		if err != nil {
-			return err
-		}
-
 		// Paint our image before mapping.
 		ximg.XSurfaceSet(win.Id)
 		ximg.XDraw()
@@ -188,6 +181,11 @@ func loop(screens []*screen, noGrab bool, permitEscape bool, customPassword stri
 
 		// some WM override this position after mapping
 		win.Move(screen.X(), screen.Y())
+		err = ewmh.WmStateReq(Xu, win.Id, ewmh.StateToggle,
+			"_NET_WM_STATE_FULLSCREEN")
+		if err != nil {
+			return err
+		}
 	}
 
 	// main loop
