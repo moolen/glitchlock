@@ -163,6 +163,10 @@ func loop(screens []*screen, noGrab bool, permitEscape bool, customPassword stri
 		if err != nil {
 			return err
 		}
+		err = ewmh.WmStateSet(Xu, win.Id, []string{"_NET_WM_STATE_FULLSCREEN", "_NET_WM_STATE_ABOVE"})
+		if err != nil {
+			return err
+		}
 		err = icccm.WmNormalHintsSet(ximg.X, win.Id, &icccm.NormalHints{
 			Flags:     icccm.SizeHintPMinSize | icccm.SizeHintPMaxSize,
 			MinWidth:  uint(screen.Width()),
@@ -181,11 +185,6 @@ func loop(screens []*screen, noGrab bool, permitEscape bool, customPassword stri
 
 		// some WM override this position after mapping
 		win.Move(screen.X(), screen.Y())
-		err = ewmh.WmStateReq(Xu, win.Id, ewmh.StateToggle,
-			"_NET_WM_STATE_FULLSCREEN")
-		if err != nil {
-			return err
-		}
 	}
 
 	// main loop
