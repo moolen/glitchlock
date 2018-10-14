@@ -14,8 +14,8 @@ github.com/disintegration/gift v1.2.0 h1:VMQeei2F+ZtsHjMgP6Sdt1kFjRhs2lGz8ljEOPe
 github.com/disintegration/gift v1.2.0/go.mod h1:Jh2i7f7Q2BM7Ezno3PhfezbR1xpUg9dUg3/RlKGr4HI=
 github.com/konsorten/go-windows-terminal-sequences v0.0.0-20180402223658-b729f2633dfe h1:CHRGQ8V7OlCYtwaKPJi3iA7J+YdNKdo8j7nG5IgDhjs=
 github.com/konsorten/go-windows-terminal-sequences v0.0.0-20180402223658-b729f2633dfe/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
-github.com/moolen/gosseract v2.2.0+incompatible h1:7kDmpSg5PQRINnrL9OEEOY0GIBacAi1frzRL7vsE+Pc=
-github.com/moolen/gosseract v2.2.0+incompatible/go.mod h1:dxKuGTT+6j1t5/QgKBxLexxOqvwdqb43NV0EF/JuhOg=
+github.com/otiai10/gosseract v2.2.1-0.20181010045524-299c728cbe55+incompatible h1:JhShrDmQSDZw3/3gNqXJ31VgwDfPjBTnz5lL3aOwkQs=
+github.com/otiai10/gosseract v2.2.1-0.20181010045524-299c728cbe55+incompatible/go.mod h1:XrzWItCzCpFRZ35n3YtVTgq5bLAhFIkascoRo8G32QE=
 github.com/otiai10/mint v1.2.1 h1:vDQzXgHumrrZvJp/ftsTB3NUaZQzjEh7HV7Hx27lZj4=
 github.com/otiai10/mint v1.2.1/go.mod h1:YnfyPNhBvnY8bW4SGQHCs/aAFhkgySlMZbrF5U0bOVw=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
