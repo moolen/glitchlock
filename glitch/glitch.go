@@ -8,7 +8,7 @@ import (
 	"math/rand"
 
 	"github.com/disintegration/gift"
-	"github.com/moolen/gosseract"
+	"github.com/otiai10/gosseract"
 )
 
 // DistortConfig configures the glitch behavior
