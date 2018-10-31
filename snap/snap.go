@@ -1,6 +1,7 @@
 package snap
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 
@@ -97,5 +98,20 @@ func GetScreens() (screens []Screen, err error) {
 			Primary: output == primaryOutput,
 		})
 	}
+	return
+}
+
+func GetPrimary() (s Screen, err error) {
+	screens, err := GetScreens()
+	if err != nil {
+		return
+	}
+	for _, screen := range screens {
+		if screen.Primary {
+			s = screen
+			return
+		}
+	}
+	err = fmt.Errorf("primary screen not found")
 	return
 }
