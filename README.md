@@ -11,16 +11,17 @@ Example screenlock using `-censor`.
 
 ## Installation
 
-Grab a binary from the [releases page](https://github.com/moolen/glitchlock/releases) or `go get github.com/moolen/glitchlock` it. You need the tesseract development libraries for compiling this (`tesseract / archlinux` / `libtesseract-dev / ubuntu`) and for runtime, `tesseract-data-eng / archlinux` or `tesseract-ocr-eng / ubuntu`.
+Grab a binary from the [releases page](https://github.com/moolen/glitchlock/releases) or `go get github.com/moolen/glitchlock` it. You need the tesseract development libraries for compiling this.
+
+Dependencies:
+
+* pam development headers (`pam` for archlinux, `libpam0g-dev` for ubuntu/debian)
+* tesseract development libs: (`tesseract tesseract-data-eng` for archlinux, `libtesseract-dev tesseract-ocr-eng` for ubuntu/debian)
 
 ## Subpackages
 
 * [PAM](https://github.com/moolen/glitchlock/blob/master/pam): check user/password combination using PAM.
 * [glitch](https://github.com/moolen/glitchlock/blob/master/glitch): distort images.
-
-## Known issues
-
-* multi-head setup is WIP and might not work
 
 ## Usage
 
