@@ -103,10 +103,15 @@ func Censor(in *image.RGBA) (*image.RGBA, error) {
 	defer client.Close()
 	var pngBuf bytes.Buffer
 	png.Encode(&pngBuf, in)
+	bounds := in.Bounds().Size()
 	client.SetImageFromBytes(pngBuf.Bytes())
 	bboxes, _ := client.GetBoundingBoxes(gosseract.RIL_WORD)
 	for _, box := range bboxes {
-		in = drawRect(in, box.Box.Min.X, box.Box.Min.Y, box.Box.Max.X, box.Box.Max.Y)
+		// for some reason it happens that the full screen is
+		// being recognized
+		if box.Box.Size().X < bounds.X && box.Box.Size().Y < bounds.Y {
+			in = drawRect(in, box.Box.Min.X, box.Box.Min.Y, box.Box.Max.X, box.Box.Max.Y)
+		}
 	}
 	return in, nil
 }
