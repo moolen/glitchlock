@@ -47,7 +47,7 @@ int check_password(const char* user, const char* password) {
     };
     test_password = password;
 
-    retval = pam_start("go/pam", user, &conv, &pam_handle);
+    retval = pam_start("login", user, &conv, &pam_handle);
 
     if (retval == PAM_SUCCESS)
         retval = pam_authenticate(pam_handle, 0);
